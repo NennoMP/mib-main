@@ -7,3 +7,6 @@
 [submodule "mib-blacklist"]
 	path = mib-blacklist
 	url = https://github.com/NennoMP/mib-blacklist
+[submodule "mib-messages"]
+	path = mib-messages
+	url = https://github.com/NennoMP/mib-messages
