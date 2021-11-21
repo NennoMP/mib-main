@@ -1,0 +1,9 @@
+[submodule "mib-user"]
+	path = mib-user
+	url = https://github.com/NennoMP/mib-user
+[submodule "mib-api-gateway"]
+	path = mib-api-gateway
+	url = https://github.com/NennoMP/mib-api-gateway
+[submodule "mib-blacklist"]
+	path = mib-blacklist
+	url = https://github.com/NennoMP/mib-blacklist
