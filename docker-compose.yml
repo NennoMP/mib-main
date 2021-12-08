@@ -61,6 +61,8 @@ services:
       - gateway.conf
     environment:
       - USERS_MS_HOST=users_ms_worker
+      - BLACKLIST_MS_HOST=blacklist_ms_worker
+      - MESSAGES_MS_HOST=messages_ms_worker
     labels:
       - mib.api_gateway_worker
 
@@ -81,7 +83,7 @@ services:
     #
     # Users Microservice Database
     #
-    image: library/postgres:10
+    image: postgres:13
     restart: on-failure
     env_file:
       - users_ms.conf
@@ -90,21 +92,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  users_ms_migrations:
-    #
-    # Users Microservice Migrations
-    #
-    build: ./mib-user
-    env_file:
-      - users_ms.conf
-    environment:
-      - POSTGRES_HOST=users_ms_db
-    restart: on-failure
-    command: flask db upgrade
-    depends_on:
-      users_ms_db:
-        condition: service_healthy
 
   users_ms_worker:
     #
@@ -119,8 +106,68 @@ services:
     depends_on:
       users_ms_db:
         condition: service_healthy
-      users_ms_migrations:
-        condition: service_started
+
+  # -------------------------------------------- #
+  # Blacklist Microservice                           #
+  # -------------------------------------------- #
+  blacklist_ms_db:
+    #
+    # Blacklist Microservice Database
+    #
+    image: postgres:13
+    restart: on-failure
+    env_file:
+      - blacklist_ms.conf
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  blacklist_ms_worker:
+    #
+    # Blacklist Microservice Worker node
+    #
+    build: ./mib-blacklist
+    restart: on-failure
+    env_file:
+      - blacklist_ms.conf
+    environment:
+      - POSTGRES_HOST=blacklist_ms_db
+    depends_on:
+      blacklist_ms_db:
+        condition: service_healthy
+        
+  # -------------------------------------------- #
+  # Messages Microservice                           #
+  # -------------------------------------------- #
+  messages_ms_db:
+    #
+    # Messages Microservice Database
+    #
+    image: postgres:13
+    restart: on-failure
+    env_file:
+      - messages_ms.conf
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $$POSTGRES_USER" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  messages_ms_worker:
+    #
+    # Messages Microservice Worker node
+    #
+    build: ./mib-messages
+    restart: on-failure
+    env_file:
+      - messages_ms.conf
+    environment:
+      - POSTGRES_HOST=messages_ms_db
+    depends_on:
+      messages_ms_db:
+        condition: service_healthy
   
   #
   # Specify here your microservices
