@@ -18,20 +18,15 @@ services:
   # -------------------------------------------- #
   # Starting with API Gateway and Load Balancer  #
   # -------------------------------------------- #
-  redis-users:
+  redis:
     image: redis
-    ports:
-     - "6380:6380"
-    command: --port 6380  
-    expose:
-      - "6380"
   redis-messages:
     image: redis
     ports:
      - "6381:6381"
     command: --port 6381  
     expose:
-      - "6381"    
+      - "6381"
   nginx_lb_orchestrator:
     #
     # Nginx Orchestrator instance
@@ -112,6 +107,8 @@ services:
     #
     build: ./mib-user
     restart: on-failure
+    volumes:
+      - ./mib-user:/app
     env_file:
       - users_ms.conf
     environment:
@@ -152,7 +149,7 @@ services:
         condition: service_healthy
         
   # -------------------------------------------- #
-  # Messages Microservice                           #
+  # Messages Microservice                        #
   # -------------------------------------------- #
   messages_ms_db:
     #
@@ -174,6 +171,8 @@ services:
     #
     build: ./mib-messages
     restart: on-failure
+    volumes:
+      - ./mib-messages:/app
     env_file:
       - messages_ms.conf
     environment:
@@ -185,18 +184,45 @@ services:
   celery-work-users:
     build: ./mib-user
     command: celery -A background worker -l info
+    volumes:
+      - ./mib-user:/app
     depends_on:
-      - redis-users
+      - redis
+      - celery-beat-users
     links:
-      - redis-users
+      - redis
     environment:
-      - CELERY_BROKER_URL=redis://redis-users:6380/0
-      - CELERY_RESULT_BACKEND_URL=redis://redis-users:6380/0
-      #- C_FORCE_ROOT=true   
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND_URL=redis://redis:6379/0
+
+  celery-beat-users:
+    build: ./mib-user
+    command: celery -A background beat -l info
+    depends_on:
+      - redis
+    links:
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND_URL=redis://redis:6379/0
 
   celery-work-messages:
     build: ./mib-messages
-    command: celery -A background  worker -l info
+    command: celery -A background worker -l info
+    volumes:
+      - ./mib-messages:/app
+    depends_on:
+      - redis-messages
+      - celery-beat-messages
+    links:
+      - redis-messages
+    environment:
+      - CELERY_BROKER_URL=redis://redis-messages:6381/0
+      - CELERY_RESULT_BACKEND_URL=redis://redis-messages:6381/0
+
+  celery-beat-messages:
+    build: ./mib-messages
+    command: celery -A background beat -l info
     depends_on:
       - redis-messages
     links:
@@ -204,7 +230,7 @@ services:
     environment:
       - CELERY_BROKER_URL=redis://redis-messages:6381/0
       - CELERY_RESULT_BACKEND_URL=redis://redis-messages:6381/0
-      #- C_FORCE_ROOT=true       
+
   #
   # Specify here your microservices
   # separating services by: db_service, migration_service, worker_service
