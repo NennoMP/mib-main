@@ -18,7 +18,20 @@ services:
   # -------------------------------------------- #
   # Starting with API Gateway and Load Balancer  #
   # -------------------------------------------- #
- 
+  redis-users:
+    image: redis
+    ports:
+     - "6380:6380"
+    command: --port 6380  
+    expose:
+      - "6380"
+  redis-messages:
+    image: redis
+    ports:
+     - "6381:6381"
+    command: --port 6381  
+    expose:
+      - "6381"    
   nginx_lb_orchestrator:
     #
     # Nginx Orchestrator instance
@@ -168,7 +181,30 @@ services:
     depends_on:
       messages_ms_db:
         condition: service_healthy
-  
+
+  celery-work-users:
+    build: ./mib-user
+    command: celery -A background worker -l info
+    depends_on:
+      - redis-users
+    links:
+      - redis-users
+    environment:
+      - CELERY_BROKER_URL=redis://redis-users:6380/0
+      - CELERY_RESULT_BACKEND_URL=redis://redis-users:6380/0
+      #- C_FORCE_ROOT=true   
+
+  celery-work-messages:
+    build: ./mib-messages
+    command: celery -A background  worker -l info
+    depends_on:
+      - redis-messages
+    links:
+      - redis-messages
+    environment:
+      - CELERY_BROKER_URL=redis://redis-messages:6381/0
+      - CELERY_RESULT_BACKEND_URL=redis://redis-messages:6381/0
+      #- C_FORCE_ROOT=true       
   #
   # Specify here your microservices
   # separating services by: db_service, migration_service, worker_service
