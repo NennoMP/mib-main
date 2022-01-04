@@ -52,7 +52,6 @@ doubts about it, you can check the git-scm documentation
 [here](https://git-scm.com/book/en/v2/Git-Tools-Submodules). 
 
 
-
 ## Configuration
 
 Each micro-service should have a single configuration file, placed inside the main project root, with the name `<microservice_name>_ms.conf`. An example of this can be found in the project root.
@@ -62,10 +61,6 @@ Each micro-service should have a single configuration file, placed inside the ma
 ## Development
 
 The project structure should be the following:
-
-
-
-
 
 ## Build and run
 
