@@ -1,11 +1,6 @@
 # Message in a Bottle
 
-This is the main repository of Message in a Bottle application, self project of *Advanced Software Engineering* course, University of Pisa.
-
-## Team info
-
-- The *squad id* is **5**
-- The *team leader* is *Laura Norato*
+This is the main repository of microservice-based My Message in a Bottle application, project of **Advanced Software Engineering** course of the MSc in Computer Science, University of Pisa.
 
 #### Members
 
@@ -17,7 +12,11 @@ Mark with *bold* the person(s) that has developed this microservice.
 |*Emanuele Albertosi*|20783727@studenti.unipi.it     |
 |*Michele Zoncheddu* |m.zoncheddu@studenti.unipi.it  |
 |*Alessio Russo*     |a.russo65@studenti.unipi.it    |
-|*Matteo Pinna*     |m.pinna10@studenti.unipi.it    |
+|*Matteo Pinna*      |m.pinna10@studenti.unipi.it    |
+
+
+## Overview
+The project is an implementation of the [monolith](https://github.com/NennoMP/my-message-in-a-bottle) application with a microservice-based architecture, specifically splitting the previous monolith in at least three microservices. In short, users can register to the platform, customize their profile section, report/block/unblock other users with negative behaviour, exchange time-capsule messages (implemented with **Celery** tasks running in the background) etc..
 
 ## Instructions
 
@@ -51,12 +50,9 @@ If you are not familiar with git submodules or you have some
 doubts about it, you can check the git-scm documentation
 [here](https://git-scm.com/book/en/v2/Git-Tools-Submodules). 
 
-
 ## Configuration
 
 Each micro-service should have a single configuration file, placed inside the main project root, with the name `<microservice_name>_ms.conf`. An example of this can be found in the project root.
-
-
 
 ## Development
 
@@ -76,4 +72,3 @@ To startup application you can issue the following command:
 #### Application Environment
 
 The default application environment for this application is **production**. 
-
