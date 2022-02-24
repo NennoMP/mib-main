@@ -71,4 +71,4 @@ To startup application you can issue the following command:
 
 #### Application Environment
 
-The default application environment for this application is **production**. 
+The default application environment for this application is **production**.
