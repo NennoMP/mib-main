@@ -1,4 +1,4 @@
-# Message in a Bottle
+# My Message in a Bottle
 
 This is the main repository of microservice-based My Message in a Bottle application, project of **Advanced Software Engineering** course of the MSc in Computer Science, University of Pisa.
 
